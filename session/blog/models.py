@@ -43,3 +43,11 @@ class Tag(models.Model):
 
 
 # TODO: Like 모델 추가하기
+
+class Like(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    blog = models.ForeignKey(Blog, on_delete=models.CASCADE, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'like'

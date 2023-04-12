@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator
-from .models import Blog, Comment, Tag
+from .models import Blog, Comment, Tag, Like
 
 
 def home(request):
@@ -15,8 +15,9 @@ def detail(request, blog_id):
     blog = get_object_or_404(Blog, pk=blog_id)
     comments = Comment.objects.filter(blog=blog)
     tags = blog.tag.all()
+    likes = Like.objects.filter(blog=blog)
 
-    return render(request, 'detail.html', {'blog': blog, 'comments': comments, 'tags': tags})
+    return render(request, 'detail.html', {'blog': blog, 'comments': comments, 'tags': tags, 'likes': likes})
 
 
 def new(request):
@@ -79,5 +80,15 @@ def new_comment(request, blog_id):
     blog = get_object_or_404(Blog, pk=blog_id)
     return render(request, 'new_comment.html', {'blog': blog})
 
-
 # TODO: like 기능 구현
+
+def new_like(request, blog_id):
+    user = request.user
+    blog = get_object_or_404(Blog, pk=blog_id)
+    likes = Like.objects.filter(blog=blog)
+
+    if likes.filter(user=user).exists():
+        likes.filter(user=user).delete() #좋아요가 되어있는 상태에서 요청할 경우 좋아요 취소
+    else:
+        Like.objects.create(user=user, blog=blog) #좋아요 객체 생성
+    return redirect('detail', blog_id=blog.id)
