@@ -15,7 +15,7 @@ def detail(request, blog_id):
     blog = get_object_or_404(Blog, pk=blog_id)
     comments = Comment.objects.filter(blog=blog)
     tags = blog.tag.all()
-    likes = Like.objects.filter(blog=blog)
+    likes = [like.user for like in Like.objects.filter(blog=blog)]
 
     return render(request, 'detail.html', {'blog': blog, 'comments': comments, 'tags': tags, 'likes': likes})
 
@@ -77,6 +77,8 @@ def create_comment(request, blog_id):
 
 
 def new_comment(request, blog_id):
+    if not request.user.is_authenticated:
+        return redirect('login')
     blog = get_object_or_404(Blog, pk=blog_id)
     return render(request, 'new_comment.html', {'blog': blog})
 
@@ -84,6 +86,8 @@ def new_comment(request, blog_id):
 
 def new_like(request, blog_id):
     user = request.user
+    if not user.is_authenticated:
+        return redirect('login')
     blog = get_object_or_404(Blog, pk=blog_id)
     likes = Like.objects.filter(blog=blog)
 
